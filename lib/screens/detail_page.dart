@@ -247,19 +247,32 @@ class _DetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _FadeInUp(
-                child: _HoverButton(
-                  onPressed: () => context.go('/search'),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.arrow_back, color: AppColors.darkBrown, size: 18),
-                      SizedBox(width: 6),
-                      Text('Volver', style: TextStyle(color: AppColors.darkBrown, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                ),
-              ),
+
+             _FadeInUp(
+  child: Align(
+    alignment: Alignment.centerLeft,
+    child: _HoverButton(
+      onPressed: () => context.go('/search'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: accentColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.arrow_back, color: accentColor, size: 18),
+            const SizedBox(width: 6),
+            Text('Volver', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+
               const SizedBox(height: 12),
               _FadeInUp(
                 delay: const Duration(milliseconds: 80),

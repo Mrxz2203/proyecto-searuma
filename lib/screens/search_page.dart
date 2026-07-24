@@ -105,7 +105,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-
 class _TopBar extends StatelessWidget {
   const _TopBar();
 
@@ -122,19 +121,7 @@ class _TopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => context.go('/'),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Row(
-                children: const [
-                  Icon(Icons.arrow_back, color: AppColors.warmWhite, size: 20),
-                  SizedBox(width: 8),
-                  Text('Inicio', style: TextStyle(color: AppColors.warmWhite, fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
-          ),
+          _InicioButton(onTap: () => context.go('/')),
           const Spacer(),
           const Text(
             'SearUma',
@@ -143,6 +130,47 @@ class _TopBar extends StatelessWidget {
           const Spacer(),
           const SizedBox(width: 70), // balancea visualmente el "Inicio" de la izquierda
         ],
+      ),
+    );
+  }
+}
+
+class _InicioButton extends StatefulWidget {
+  final VoidCallback onTap;
+  const _InicioButton({required this.onTap});
+
+  @override
+  State<_InicioButton> createState() => _InicioButtonState();
+}
+
+class _InicioButtonState extends State<_InicioButton> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          decoration: BoxDecoration(
+            color: AppColors.warmWhite.withValues(alpha: _hovering ? 0.25 : 0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.warmWhite.withValues(alpha: 0.5), width: 1.5),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.arrow_back, color: AppColors.warmWhite, size: 18),
+              SizedBox(width: 8),
+              Text('Inicio', style: TextStyle(color: AppColors.warmWhite, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
       ),
     );
   }
