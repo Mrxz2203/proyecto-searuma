@@ -1,6 +1,6 @@
 {
-    "name": "searuma",
-    "short_name": "searuma",
+    "name": "SearUma - Buscador de Uma Musume",
+"short_name": "SearUma",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

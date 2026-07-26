@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,8 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -25,8 +28,19 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() => _isSearching = true);
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      context.read<CharacterProvider>().updateSearchQuery(value);
+      setState(() => _isSearching = false);
+    });
   }
 
   @override
@@ -39,7 +53,11 @@ class _SearchPageState extends State<SearchPage> {
             const _TopBar(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: _SearchBar(controller: _searchController),
+              child: _SearchBar(
+                controller: _searchController,
+                isSearching: _isSearching,
+                onChanged: _onSearchChanged,
+              ),
             ),
             Expanded(
               child: Consumer<CharacterProvider>(
@@ -56,9 +74,9 @@ class _SearchPageState extends State<SearchPage> {
                         children: [
                           const Icon(Icons.error_outline, color: AppColors.softOrange, size: 40),
                           const SizedBox(height: 12),
-                          Text(
+                          const Text(
                             'Error al cargar personajes',
-                            style: const TextStyle(color: AppColors.leatherBrown, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppColors.leatherBrown, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -105,6 +123,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
+
 class _TopBar extends StatelessWidget {
   const _TopBar();
 
@@ -178,16 +197,32 @@ class _InicioButtonState extends State<_InicioButton> {
 
 class _SearchBar extends StatelessWidget {
   final TextEditingController controller;
-  const _SearchBar({required this.controller});
+  final bool isSearching;
+  final ValueChanged<String> onChanged;
+
+  const _SearchBar({
+    required this.controller,
+    required this.isSearching,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      onChanged: (value) => context.read<CharacterProvider>().updateSearchQuery(value),
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: 'Buscar Uma Musume...',
-        prefixIcon: const Icon(Icons.search, color: AppColors.oliveGreen),
+        prefixIcon: isSearching
+            ? const Padding(
+                padding: EdgeInsets.all(14),
+                child: SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.oliveGreen),
+                ),
+              )
+            : const Icon(Icons.search, color: AppColors.oliveGreen),
         filled: true,
         fillColor: AppColors.warmWhite,
         contentPadding: const EdgeInsets.symmetric(vertical: 16),

@@ -247,32 +247,30 @@ class _DetailContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-             _FadeInUp(
-  child: Align(
-    alignment: Alignment.centerLeft,
-    child: _HoverButton(
-      onPressed: () => context.go('/search'),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: accentColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.5),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.arrow_back, color: accentColor, size: 18),
-            const SizedBox(width: 6),
-            Text('Volver', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    ),
-  ),
-),
-
+              _FadeInUp(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: _HoverButton(
+                    onPressed: () => context.go('/search'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.arrow_back, color: accentColor, size: 18),
+                          const SizedBox(width: 6),
+                          Text('Volver', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 12),
               _FadeInUp(
                 delay: const Duration(milliseconds: 80),
@@ -289,14 +287,17 @@ class _DetailContent extends StatelessWidget {
                       ],
                     ),
                     padding: const EdgeInsets.all(20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Image.network(
-                        character.thumbImg ?? character.detailImgPc ?? '',
-                        height: 280,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.pets, size: 80, color: accentColor),
+                    child: Hero(
+                      tag: 'character-image-${character.id}',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.network(
+                          character.thumbImg ?? character.detailImgPc ?? '',
+                          height: 280,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(Icons.pets, size: 80, color: accentColor),
+                        ),
                       ),
                     ),
                   ),

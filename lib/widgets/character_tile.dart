@@ -57,19 +57,23 @@ class _CharacterTileState extends State<CharacterTile> {
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: Container(
                     color: accentColor.withValues(alpha: 0.12),
-                    child: widget.character.thumbImg != null
-                        ? Image.network(
-                            widget.character.thumbImg!,
-                            fit: BoxFit.cover,
-                           errorBuilder: (context, error, stackTrace) => Icon(Icons.pets, color: accentColor, size: 40),
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(color: accentColor, strokeWidth: 2),
-                              );
-                            },
-                          )
-                        : Icon(Icons.pets, color: accentColor, size: 40),
+                    child: Hero(
+                      tag: 'character-image-${widget.character.id}',
+                      child: widget.character.thumbImg != null
+                          ? Image.network(
+                              widget.character.thumbImg!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.pets, color: accentColor, size: 40),
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(color: accentColor, strokeWidth: 2),
+                                );
+                              },
+                            )
+                          : Icon(Icons.pets, color: accentColor, size: 40),
+                    ),
                   ),
                 ),
               ),
