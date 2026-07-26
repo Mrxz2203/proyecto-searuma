@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/character.dart';
 import '../theme/app_colors.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/favorites_provider.dart';
 class CharacterTile extends StatefulWidget {
   final Character character;
   const CharacterTile({super.key, required this.character});
@@ -52,31 +53,42 @@ class _CharacterTileState extends State<CharacterTile> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Container(
-                    color: accentColor.withValues(alpha: 0.12),
-                    child: Hero(
-                      tag: 'character-image-${widget.character.id}',
-                      child: widget.character.thumbImg != null
-                          ? Image.network(
-                              widget.character.thumbImg!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(Icons.pets, color: accentColor, size: 40),
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(color: accentColor, strokeWidth: 2),
-                                );
-                              },
-                            )
-                          : Icon(Icons.pets, color: accentColor, size: 40),
-                    ),
-                  ),
-                ),
-              ),
+             Expanded(
+  child: Stack(
+    children: [
+      ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: Container(
+          width: double.infinity,
+          color: accentColor.withValues(alpha: 0.12),
+          child: Hero(
+            tag: 'character-image-${widget.character.id}',
+            child: widget.character.thumbImg != null
+                ? Image.network(
+                    widget.character.thumbImg!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.pets, color: accentColor, size: 40),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(color: accentColor, strokeWidth: 2),
+                      );
+                    },
+                  )
+                : Icon(Icons.pets, color: accentColor, size: 40),
+          ),
+        ),
+      ),
+      Positioned(
+        top: 6,
+        right: 6,
+        child: _FavoriteButton(characterId: widget.character.id),
+      ),
+    ],
+  ),
+),
+          
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
@@ -91,6 +103,35 @@ class _CharacterTileState extends State<CharacterTile> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FavoriteButton extends StatelessWidget {
+  final int characterId;
+  const _FavoriteButton({required this.characterId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<FavoritesProvider>(
+      builder: (context, favorites, _) {
+        final isFav = favorites.isFavorite(characterId);
+        return GestureDetector(
+          onTap: () => favorites.toggleFavorite(characterId),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.35),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isFav ? Icons.star : Icons.star_border,
+              color: isFav ? AppColors.gold : Colors.white,
+              size: 18,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/character_provider.dart';
+import 'providers/favorites_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_colors.dart';
 
@@ -13,8 +14,11 @@ class SearUmaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CharacterProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CharacterProvider()),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()..loadFavorites()),
+      ],
       child: MaterialApp.router(
         title: 'SearUma',
         debugShowCheckedModeBanner: false,

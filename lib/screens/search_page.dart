@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../providers/character_provider.dart';
 import '../widgets/character_tile.dart';
 import '../theme/app_colors.dart';
-
+import '../providers/favorites_provider.dart';
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -17,6 +17,7 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   bool _isSearching = false;
+  bool _showOnlyFavorites = false;
 
   @override
   void initState() {
@@ -51,14 +52,27 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           children: [
             const _TopBar(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: _SearchBar(
-                controller: _searchController,
-                isSearching: _isSearching,
-                onChanged: _onSearchChanged,
-              ),
-            ),
+           Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+  child: Row(
+    children: [
+      Expanded(
+        child: _SearchBar(
+          controller: _searchController,
+          isSearching: _isSearching,
+          onChanged: _onSearchChanged,
+        ),
+      ),
+      const SizedBox(width: 10),
+      _FavoritesFilterButton(
+        active: _showOnlyFavorites,
+        onTap: () => setState(() => _showOnlyFavorites = !_showOnlyFavorites),
+      ),
+    ],
+  ),
+),
+           
+
             Expanded(
               child: Consumer<CharacterProvider>(
                 builder: (context, provider, _) {
@@ -93,6 +107,10 @@ class _SearchPageState extends State<SearchPage> {
                       child: Text('No se encontraron personajes.', style: TextStyle(color: AppColors.leatherBrown)),
                     );
                   }
+                  final favorites = context.watch<FavoritesProvider>();
+final displayedCharacters = _showOnlyFavorites
+    ? provider.paginatedCharacters.where((c) => favorites.isFavorite(c.id)).toList()
+    : provider.paginatedCharacters;
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: GridView.builder(
@@ -102,10 +120,12 @@ class _SearchPageState extends State<SearchPage> {
                         crossAxisSpacing: 16,
                         childAspectRatio: 0.8,
                       ),
-                      itemCount: provider.paginatedCharacters.length,
-                      itemBuilder: (context, index) {
-                        return CharacterTile(character: provider.paginatedCharacters[index]);
-                      },
+                     
+                     itemCount: displayedCharacters.length,
+itemBuilder: (context, index) {
+  return CharacterTile(character: displayedCharacters[index]);
+},
+        
                     ),
                   );
                 },
@@ -115,6 +135,7 @@ class _SearchPageState extends State<SearchPage> {
               builder: (context, provider, _) {
                 if (provider.isLoading || provider.error != null) return const SizedBox.shrink();
                 return _PaginationBar(provider: provider);
+
               },
             ),
           ],
@@ -272,6 +293,31 @@ class _PaginationBar extends StatelessWidget {
             style: TextButton.styleFrom(foregroundColor: AppColors.darkBrown),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FavoritesFilterButton extends StatelessWidget {
+  final bool active;
+  final VoidCallback onTap;
+  const _FavoritesFilterButton({required this.active, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: active ? AppColors.gold : AppColors.warmWhite,
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: Icon(
+          Icons.star,
+          color: active ? AppColors.darkBrown : AppColors.leatherBrown.withValues(alpha: 0.5),
+          size: 20,
+        ),
       ),
     );
   }
